@@ -34,5 +34,4 @@
 проверяют дольше обычных. Для первой проверки в ZIP должен быть хотя бы один рабочий сервер (автосборка не даст выпустить
 ZIP с заглушками).
 
-## Firefox
-Сборка для Firefox лежит в `firefox/` (свой `manifest.json` и `background.js` на `proxy.onRequest`, остальное общее с `extension/`). Релиз `latest` содержит `mikaela-vpn-firefox.zip` для addons.mozilla.org.
+Версия для Firefox: https://github.com/tneange1/Mikaela-VPN-Extension-FireFox (список серверов берёт отсюда).
