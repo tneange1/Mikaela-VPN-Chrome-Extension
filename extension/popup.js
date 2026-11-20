@@ -39,7 +39,14 @@ function render() {
   const isAuto = choice === 'auto' && !S.on;
   $('selCc').textContent = isAuto ? '⚡' : (cur ? cur.code : '··'); $('selNm').textContent = isAuto ? T.auto : (cur ? cur.name : T.auto);
   const p = cur && !isAuto ? pings[cur.id] : null; $('selMs').textContent = label(p); $('selMs').className = 'ms ' + (p != null ? cls(p) : '');
-  $('list').innerHTML = [{ id: 'auto', code: '⚡', name: T.auto }, ...S.servers].map(s => `<button class="it ${s.id === choice ? 'cur' : ''}" data-id="${s.id}"><span class="cc">${s.code}</span><span class="nm">${s.name.replace(/</g, '&lt;')}</span><span class="ms ${pings[s.id] != null ? cls(pings[s.id]) : ''}">${s.id === 'auto' ? '' : label(pings[s.id])}</span></button>`).join('');
+  const list = $('list'); list.textContent = '';
+  for (const s of [{ id: 'auto', code: '⚡', name: T.auto }, ...S.servers]) {
+    const b = document.createElement('button'); b.className = 'it' + (s.id === choice ? ' cur' : ''); b.dataset.id = s.id;
+    const cc = document.createElement('span'); cc.className = 'cc'; cc.textContent = s.code;
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = s.name;
+    const ms = document.createElement('span'); ms.className = 'ms' + (s.id !== 'auto' && pings[s.id] != null ? ' ' + cls(pings[s.id]) : ''); ms.textContent = s.id === 'auto' ? '' : label(pings[s.id]);
+    b.append(cc, nm, ms); list.append(b);
+  }
   $('list').querySelectorAll('.it').forEach(b => b.onclick = async () => { choice = b.dataset.id; chrome.storage.local.set({ choice }); $('list').classList.add('hide'); if (S.on) await toggle(true); else render(); });
 }
 $('sel').onclick = () => { $('list').classList.toggle('hide'); if (!$('list').classList.contains('hide')) pingAll(); };

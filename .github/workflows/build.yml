@@ -4,7 +4,7 @@ name: build
 on:
   push:
     branches: [main]
-    paths: ['extension/**', 'servers.json', 'store/**', '.github/workflows/build.yml']
+    paths: ['extension/**', 'firefox/**', 'servers.json', 'store/**', '.github/workflows/build.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
           python3 - <<'PY'
           import json, sys
           s = json.load(open('servers.json'))
-          json.load(open('extension/manifest.json'))
+          json.load(open('extension/manifest.json')); json.load(open('firefox/manifest.json'))
           bad = [x for x in s['servers'] if 'REPLACE' in json.dumps(x)]
           if not s['servers'] or bad:
               sys.exit('servers.json пуст или содержит заглушки REPLACE — для магазина нужен хотя бы один рабочий сервер')
@@ -31,6 +31,8 @@ jobs:
           echo "COUNT=$(python3 -c "import json;print(len(json.load(open('servers.json'))['servers']))")" >> "$GITHUB_ENV"
           mkdir dist
           (cd extension && zip -qr ../dist/mikaela-vpn-chrome.zip . -x '*.DS_Store')
+          rm -rf ff && cp -r extension ff && cp firefox/manifest.json firefox/background.js ff/
+          (cd ff && zip -qr ../dist/mikaela-vpn-firefox.zip . -x '*.DS_Store')
           (cd store && zip -q ../dist/store-assets.zip *.png)
           unzip -l dist/mikaela-vpn-chrome.zip | tail -3
       - uses: actions/upload-artifact@v4
@@ -44,4 +46,4 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest dist/*.zip --latest \
             --title "Mikaela VPN для Chrome v${VERSION}" \
-            --notes "Версия расширения ${VERSION}, серверов в списке: ${COUNT}. Коммит ${GITHUB_SHA::7}. mikaela-vpn-chrome.zip — для загрузки в Chrome Web Store, store-assets.zip — скриншоты и промо-плитки."
+            --notes "Версия расширения ${VERSION}, серверов в списке: ${COUNT}. Коммит ${GITHUB_SHA::7}. mikaela-vpn-chrome.zip — для Chrome Web Store, mikaela-vpn-firefox.zip — для addons.mozilla.org (Firefox), store-assets.zip — скриншоты и промо-плитки."
